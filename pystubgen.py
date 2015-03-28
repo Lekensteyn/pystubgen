@@ -142,28 +142,6 @@ def make_source(thing, include_header=False):
             title='# Generated from %s')
     return source
 
-class F(str):
-    """For testing purposes."""
-    def strip(self):
-        pass
-    def foo(self):
-        pass
-    def __add__(self):
-        pass
-    lamb = lambda x: x**2
-    lamb0 = lambda: 2
-    @property
-    def prop(self): pass
-    @prop.setter
-    def prop(self, val): pass
-    @prop.getter
-    def prop(self): pass
-    @prop.deleter
-    def prop(self): pass
-    # Unsupported syntax in Python 2:
-    #def argstest(self, x : int, y, z=1):
-    #    pass
-
 if __name__ == '__main__':
     _name = sys.argv[1]
     if _name in globals():
