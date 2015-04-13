@@ -139,8 +139,20 @@ class SourceDoc(pydoc.Doc):
 sourcecode = SourceDoc()
 
 def make_source(thing, include_header=False):
-    source = '# Generated from {}\n\n'.format(thing)
-    source += sourcecode.document(thing)
+    object, name = pydoc.resolve(thing)
+    desc = pydoc.describe(object)
+    if not (inspect.ismodule(object) or
+            inspect.isclass(object) or
+            inspect.isroutine(object) or
+            inspect.isgetsetdescriptor(object) or
+            inspect.ismemberdescriptor(object) or
+            isinstance(object, property)):
+        # If the passed object is a piece of data or an instance,
+        # document its available methods instead of its value.
+        object = type(object)
+        desc += ' object'
+    source = '# Generated from {}\n\n'.format(desc)
+    source += sourcecode.document(thing, name)
     return source
 
 if __name__ == '__main__':
