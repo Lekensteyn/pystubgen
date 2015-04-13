@@ -186,7 +186,7 @@ def make_source(thing, include_header=False):
         # document its available methods instead of its value.
         object = type(object)
         desc += ' object'
-    source = '# Generated from {}\n\n'.format(desc)
+    source = '# Generated from {0}\n\n'.format(desc)
     source += sourcecode.document(object, name)
     return source
 
