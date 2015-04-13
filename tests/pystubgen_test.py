@@ -15,10 +15,10 @@ def check_source(object):
     obj = compile(source, 'dummy.py', 'exec')
     obj_globals = {}
     exec(obj, obj_globals)
-    return obj_globals
+    return source, obj_globals
 
 def test_sample():
-    g = check_source(sample)
+    source, g = check_source(sample)
     assert 'Sample' in g
     s = g['Sample']
     assert inspect.cleandoc(g['__doc__']) == \
@@ -32,7 +32,7 @@ def test_sample_class_inheritance():
 
 @pytest.mark.skipif(sample_py3 is None, reason='not supported before Python 3')
 def test_sample_py3():
-    g = check_source(sample_py3)
+    source, g = check_source(sample_py3)
     assert 'Py3Sample' in g
     s = g['Py3Sample']
     assert inspect.cleandoc(g['__doc__']) == \
@@ -44,3 +44,8 @@ def test_sample_py3():
 def test_sample_py3_func_params():
     source = pystubgen.make_source(sample_py3.Py3Sample)
     assert '    def argstest(self, x: int, y, z=1):' in source.splitlines()
+
+def test_make_source_on_function():
+    source, g = check_source(sample.function_without_params)
+    assert 'def function_without_params():' in source.splitlines()
+    assert inspect.getdoc(g['function_without_params']) == 'Single quotes'

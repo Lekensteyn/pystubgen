@@ -32,3 +32,6 @@ class Sample(str):
 
     @prop.deleter
     def prop(self): pass
+
+def function_without_params():
+    'Single quotes'
