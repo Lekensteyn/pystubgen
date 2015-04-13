@@ -49,3 +49,10 @@ def test_make_source_on_function():
     source, g = check_source(sample.function_without_params)
     assert 'def function_without_params():' in source.splitlines()
     assert inspect.getdoc(g['function_without_params']) == 'Single quotes'
+
+def test_make_source_on_instance():
+    sample_instance = sample.Sample()
+    source, g = check_source(sample_instance)
+    assert 'Sample' in g
+    s = g['Sample']
+    assert inspect.getdoc(s) == 'For testing purposes.'

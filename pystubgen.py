@@ -142,7 +142,7 @@ class SourceDoc(pydoc.Doc):
     def docother(self, object, name=None, mod=None, parent=None, maxlen=None, doc=None):
         # NOTE: if this is triggered, a bug has probably occurred since it is
         # called as fallback by Doc.document().
-        if name is None:
+        if not name:
             raise RuntimeError('Invalid call to docother')
         val = repr(object)
         if not val[:1] in '"\'':
@@ -154,8 +154,27 @@ class SourceDoc(pydoc.Doc):
 
 sourcecode = SourceDoc()
 
+def is_string(thing):
+    """Whether the object is exactly a string (and not a subclass)"""
+    try:
+        return type(thing) in (str, unicode)
+    except:
+        return type(thing) == str
+
+def resolve(thing):
+    """Given an object or a path to an object, get the object and its name."""
+    # Based on pydoc.resolve, but check for exact str type, not a subclass
+    if is_string(thing):
+        object = pydoc.locate(thing)
+        if not object:
+            raise ImportError('no Python documentation found for %r' % thing)
+        return object, thing
+    else:
+        name = getattr(thing, '__name__', None)
+        return thing, name if isinstance(name, str) else None
+
 def make_source(thing, include_header=False):
-    object, name = pydoc.resolve(thing)
+    object, name = resolve(thing)
     desc = pydoc.describe(object)
     if not (inspect.ismodule(object) or
             inspect.isclass(object) or
@@ -168,7 +187,7 @@ def make_source(thing, include_header=False):
         object = type(object)
         desc += ' object'
     source = '# Generated from {}\n\n'.format(desc)
-    source += sourcecode.document(thing, name)
+    source += sourcecode.document(object, name)
     return source
 
 if __name__ == '__main__':
