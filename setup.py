@@ -14,7 +14,7 @@ setup(
     author_email = 'peter@lekensteyn.nl',
     license = 'MIT',
     keywords = 'development documentation',
-    #url = 'http://example.com/HelloWorld/',   # project home page, if any
+    url = 'https://github.com/Lekensteyn/pystubgen',
 
     classifiers=[
         'Development Status :: 3 - Alpha',
