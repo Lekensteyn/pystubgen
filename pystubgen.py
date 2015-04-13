@@ -28,6 +28,9 @@ class SourceDoc(pydoc.Doc):
 
     def docmodule(self, object, name=None, mod=None):
         lines = ''
+        lines += self.formatdoc(object, level = 0)
+        if lines:
+            lines += '\n'
         for key, value in inspect.getmembers(object, inspect.isclass):
             lines += self.docclass(value, key, mod) + '\n'
         return lines
