@@ -16,6 +16,16 @@ class SourceDoc(pydoc.Doc):
             return self.indent('"""\n%s\n"""\n' % docstring, level)
         return ''
 
+    def _document(self, object, name=None, *args):
+        """Generate documentation for an object, propagating errors."""
+        args = (object, name) + args
+        # pydoc.document ignores exceptions... so try these first.
+        if inspect.ismodule(object): return self.docmodule(*args)
+        if inspect.isclass(object): return self.docclass(*args)
+        if inspect.isroutine(object): return self.docroutine(*args)
+        return super(SourceDoc, self).document(object, name, *args)
+    document = _document
+
     def docmodule(self, object, name=None, mod=None):
         lines = ''
         for key, value in inspect.getmembers(object, inspect.isclass):
@@ -129,6 +139,8 @@ class SourceDoc(pydoc.Doc):
     def docother(self, object, name=None, mod=None, parent=None, maxlen=None, doc=None):
         # NOTE: if this is triggered, a bug has probably occurred since it is
         # called as fallback by Doc.document().
+        if name is None:
+            raise RuntimeError('Invalid call to docother')
         val = repr(object)
         if not val[:1] in '"\'':
             val = '"%s"' % val
