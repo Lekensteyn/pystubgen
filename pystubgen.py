@@ -2,12 +2,13 @@
 import pydoc
 import inspect
 import sys
-import textwrap
 
 class SourceDoc(pydoc.Doc):
     def indent(self, text, level):
         prefix = '    ' * level
-        return textwrap.indent(text, prefix)
+        def makeline(line):
+            return prefix + line if line.strip() else line
+        return ''.join(makeline(line) for line in text.splitlines(True))
 
     def formatdoc(self, object, level=1):
         docstring = pydoc.getdoc(object).replace('"""', r'\"\"\"')
@@ -138,8 +139,8 @@ class SourceDoc(pydoc.Doc):
 sourcecode = SourceDoc()
 
 def make_source(thing, include_header=False):
-    source = pydoc.render_doc(thing, renderer=sourcecode,
-            title='# Generated from %s')
+    source = '# Generated from {}\n\n'.format(thing)
+    source += sourcecode.document(thing)
     return source
 
 if __name__ == '__main__':
