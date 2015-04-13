@@ -26,7 +26,8 @@ class SourceDoc(pydoc.Doc):
         realname = object.__name__
         bases = object.__bases__
 
-        def makename(c, m=object.__module__):
+        def makename(c):
+            m = c.__module__
             return pydoc.classname(c, m)
         def kind_order(attr_desc):
             kind = attr_desc[1]
