@@ -5,8 +5,12 @@ This file contains definitions that should be processed without error.
 
 class Sample(str):
     """For testing purposes."""
+
     def strip(self):
-        pass
+        """
+        Strip  some
+        documentation.
+        """
 
     def foo(self):
         pass
