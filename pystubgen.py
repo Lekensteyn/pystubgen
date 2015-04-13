@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+# pystubgen - Generates Python source code from a module for documentation
+# purposes.
+#
+# Copyright (C) 2015 Peter Wu <peter@lekensteyn.nl>
+# Licensed under the MIT license. See the LICENSE file for details.
+
 import pydoc
 import inspect
 import sys
@@ -186,7 +192,7 @@ def make_source(thing, include_header=False):
         # document its available methods instead of its value.
         object = type(object)
         desc += ' object'
-    source = '# Generated from {0}\n\n'.format(desc)
+    source = '# Generated from {0} using pystubgen\n\n'.format(desc)
     source += sourcecode.document(object, name)
     return source
 
