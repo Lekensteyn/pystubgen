@@ -10,16 +10,16 @@ import inspect
 import sys
 
 class SourceDoc(pydoc.Doc):
-    def indent(self, text, level):
+    def _indent(self, text, level):
         prefix = '    ' * level
         def makeline(line):
             return prefix + line if line.strip() else line
         return ''.join(makeline(line) for line in text.splitlines(True))
 
-    def formatdoc(self, object, level=1):
+    def _formatdoc(self, object, level=1):
         docstring = pydoc.getdoc(object).replace('"""', r'\"\"\"')
         if docstring:
-            return self.indent('"""\n%s\n"""\n' % docstring, level)
+            return self._indent('"""\n%s\n"""\n' % docstring, level)
         return ''
 
     def _document(self, object, name=None, *args):
@@ -34,7 +34,7 @@ class SourceDoc(pydoc.Doc):
 
     def docmodule(self, object, name=None, mod=None):
         lines = ''
-        lines += self.formatdoc(object, level = 0)
+        lines += self._formatdoc(object, level = 0)
         if lines:
             lines += '\n'
         for key, value in inspect.getmembers(object, inspect.isclass):
@@ -60,7 +60,7 @@ class SourceDoc(pydoc.Doc):
         if bases:
             lines += '(' + ', '.join(map(makename, bases)) + ')'
         lines += ':\n'
-        lines += self.formatdoc(object)
+        lines += self._formatdoc(object)
 
         hasdefs = False
         for aname, kind, cls, value in \
@@ -88,11 +88,11 @@ class SourceDoc(pydoc.Doc):
             else:
                 # Unknown?!
                 block = '# Unhandled %s %s\n' % (kind, aname)
-                lines += self.indent(block, 1)
+                lines += self._indent(block, 1)
                 continue
 
             if block:
-                lines += self.indent(block, 1)
+                lines += self._indent(block, 1)
                 lines += '\n'
                 hasdefs = True
         if not hasdefs:
@@ -122,17 +122,17 @@ class SourceDoc(pydoc.Doc):
             args = signature[1:-1]
             lines += ' ' + args if args else ''
             lines += ': None\n'
-            lines += self.formatdoc(object, level=0)
+            lines += self._formatdoc(object, level=0)
         else:
             lines = 'def %s%s:\n' % (realname, signature)
-            block = self.formatdoc(object)
+            block = self._formatdoc(object)
             lines += block if block else '    pass\n'
         return lines
 
     def docproperty(self, object, name=None, mod=None, cl=None):
         lines = '@property\n'
         lines += 'def %s(self):\n' % name
-        block = self.formatdoc(object)
+        block = self._formatdoc(object)
         lines += block if block else '    pass\n'
         return lines
 
@@ -142,7 +142,7 @@ class SourceDoc(pydoc.Doc):
             val = '"%s"' % val
         lines = '%s = %s # DATA\n' % (name, val)
         if type(object) != str:
-            lines += self.formatdoc(object, level=0)
+            lines += self._formatdoc(object, level=0)
         return lines
 
     def docother(self, object, name=None, mod=None, parent=None, maxlen=None, doc=None):
@@ -155,12 +155,12 @@ class SourceDoc(pydoc.Doc):
             val = '"%s"' % val
         lines = '%s = %s # OTHER\n' % (name, val)
         if type(object) != str:
-            lines += self.formatdoc(object, level=0)
+            lines += self._formatdoc(object, level=0)
         return lines
 
 sourcecode = SourceDoc()
 
-def is_string(thing):
+def _is_string(thing):
     """Whether the object is exactly a string (and not a subclass)"""
     try:
         return type(thing) in (str, unicode)
@@ -170,7 +170,7 @@ def is_string(thing):
 def resolve(thing):
     """Given an object or a path to an object, get the object and its name."""
     # Based on pydoc.resolve, but check for exact str type, not a subclass
-    if is_string(thing):
+    if _is_string(thing):
         object = pydoc.locate(thing)
         if not object:
             raise ImportError('no Python documentation found for %r' % thing)
