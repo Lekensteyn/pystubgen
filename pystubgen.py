@@ -208,10 +208,13 @@ def make_source(thing, include_header=False):
     source += sourcecode.document(object, name)
     return source
 
-if __name__ == '__main__':
+def main():
     _name = sys.argv[1]
     if _name in globals():
         _thing = globals()[_name]
     else:
         _thing = _name
     print(make_source(_thing, True))
+
+if __name__ == '__main__':
+    main()
