@@ -33,6 +33,18 @@ where `gdb.py` is created using pystubgen from the current directory:
     >end
     (gdb) quit
 
+Features
+--------
+Definitions and docstrings are outputted for:
+
+ - Modules.
+ - Classes.
+ - Methods, static methods and class methods for classes.
+ - Fields for classes (without docstrings though).
+ - Global variables (without docstrings though).
+ - Functions and lambda functions including parameters (caveat: built-ins and
+   other C functions have `(__unknown_params__)` as parameter signature).
+
 Testing
 -------
 pystubgen uses the [pytest][pytest] framework for acceptance testing. Once

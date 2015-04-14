@@ -180,6 +180,18 @@ def resolve(thing):
         return thing, name if isinstance(name, str) else None
 
 def make_source(thing, include_header=False):
+    """Produce source code with documentation strings attached.
+
+    Args:
+        thing: a Python object such as modules, classes, fields, functions, etc.
+            Class instances are resolved to their type. Strings are resolved to
+            the object.
+        include_header: when True, a preceding comment will be added that notes
+            where the source code is generated from.
+
+    Returns:
+        A str containing the source code for the given object.
+    """
     object, name = resolve(thing)
     desc = pydoc.describe(object)
     if not (inspect.ismodule(object) or
