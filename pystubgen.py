@@ -179,7 +179,7 @@ def resolve(thing):
         name = getattr(thing, '__name__', None)
         return thing, name if isinstance(name, str) else None
 
-def make_source(thing, include_header=False):
+def make_source(thing, include_header=True):
     """Produce source code with documentation strings attached.
 
     Args:
@@ -204,7 +204,9 @@ def make_source(thing, include_header=False):
         # document its available methods instead of its value.
         object = type(object)
         desc += ' object'
-    source = '# Generated from {0} using pystubgen\n\n'.format(desc)
+    source = ''
+    if include_header:
+        source += '# Generated from {0} using pystubgen\n\n'.format(desc)
     source += sourcecode.document(object, name)
     return source
 
