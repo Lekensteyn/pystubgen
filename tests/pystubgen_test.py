@@ -51,6 +51,18 @@ def test_make_source_on_function():
     assert 'def function_without_params():' in source.splitlines()
     assert inspect.getdoc(g['function_without_params']) == 'Single quotes'
 
+def test_make_source_builtin_params():
+    source, g = check_source(len)
+    # Assume that the documentation of the built-in module "len" begins with:
+    #     len(object)
+    assert 'def len(object):' in source.splitlines()
+
+def test_make_source_builtin_optional_params():
+    source, g = check_source(dir)
+    # Assume that the documentation of the built-in module "dir" begins with:
+    #     dir([object]) -> list of strings
+    assert 'def dir(object=None):' in source.splitlines()
+
 def test_make_source_on_instance():
     sample_instance = sample.Sample()
     source, g = check_source(sample_instance)

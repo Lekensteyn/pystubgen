@@ -22,6 +22,27 @@ class SourceDoc(pydoc.Doc):
             return self.indent('"""\n%s\n"""\n' % docstring, level)
         return ''
 
+    def guess_signature(self, object):
+        """
+        Tries to guess the signature of an object based on its docstring.
+
+        It tries to recognize on of the following signatures:
+        func ()
+        func () -> retval
+        func(a[, b])
+        B.isspace() -> bool
+        S.split([sep [,maxsplit]]) -> list of strings
+        S.format(*args, **kwargs) -> unicode
+        min(iterable, *[, default=obj, key=func]) -> value
+        min(arg1, arg2, *args, *[, key=func]) -> value
+        zip(iter1 [,iter2 [...]]) --> zip object
+
+        If found, it will return a string such as "()" or "(a, b=None)".
+        """
+        docstring = pydoc.getdoc(object)
+        # TODO recognize as many formats as possible.
+        # TODO what to do for ambiguous functions such as min?
+
     def _document(self, object, name=None, *args):
         """Generate documentation for an object, propagating errors."""
         args = (object, name) + args
@@ -115,7 +136,11 @@ class SourceDoc(pydoc.Doc):
                 argspec = inspect.getargspec(object)
             signature = inspect.formatargspec(*argspec)
         except (ValueError, TypeError):
-            signature = '(__unknown_params__)'
+            # built-ins (C functions) have no signature, try to guess it based
+            # on the documentation.
+            signature = self.guess_signature(object)
+            if not signature:
+                signature = '(__unknown_params__)'
 
         if realname == '<lambda>':
             lines = '%s = lambda' % name
