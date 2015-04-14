@@ -25,9 +25,10 @@ def test_sample():
         "This file contains definitions that should be processed without error."
     assert inspect.getdoc(s) == 'For testing purposes.'
     assert inspect.getdoc(s.strip) == 'Strip  some\ndocumentation.'
+    assert inspect.getdoc(s.prop) == 'Property documentation.'
 
 def test_sample_class_inheritance():
-    source = pystubgen.make_source(sample.Sample)
+    source, g = check_source(sample.Sample)
     assert 'class Sample(str):' in source.splitlines()
 
 @pytest.mark.skipif(sample_py3 is None, reason='not supported before Python 3')
@@ -42,7 +43,7 @@ def test_sample_py3():
 
 @pytest.mark.skipif(sample_py3 is None, reason='not supported before Python 3')
 def test_sample_py3_func_params():
-    source = pystubgen.make_source(sample_py3.Py3Sample)
+    source, g = check_source(sample_py3.Py3Sample)
     assert '    def argstest(self, x: int, y, z=1):' in source.splitlines()
 
 def test_make_source_on_function():

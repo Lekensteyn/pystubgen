@@ -22,13 +22,10 @@ class Sample(str):
     lamb0 = lambda: 2
 
     @property
-    def prop(self): pass
+    def prop(self): """Property documentation."""
 
     @prop.setter
     def prop(self, val): pass
-
-    @prop.getter
-    def prop(self): pass
 
     @prop.deleter
     def prop(self): pass
