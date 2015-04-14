@@ -35,10 +35,10 @@ class SourceDoc(pydoc.Doc):
     def docmodule(self, object, name=None, mod=None):
         lines = ''
         lines += self._formatdoc(object, level = 0)
-        if lines:
-            lines += '\n'
         for key, value in inspect.getmembers(object, inspect.isclass):
-            lines += self.docclass(value, key, mod) + '\n'
+            if lines:
+                lines += '\n'
+            lines += self.docclass(value, key, mod)
         return lines
 
     def docclass(self, object, name=None, mod=None, *ignored):
@@ -60,15 +60,16 @@ class SourceDoc(pydoc.Doc):
         if bases:
             lines += '(' + ', '.join(map(makename, bases)) + ')'
         lines += ':\n'
-        lines += self._formatdoc(object)
+        doc = self._formatdoc(object)
+        lines += doc
 
-        hasdefs = False
+        hasdefs = doc # do not display 'pass' if doc is visible
         for aname, kind, cls, value in \
             sorted(inspect.classify_class_attrs(object), key=kind_order):
             if cls != object:
                 # Ignore inherited attributes
                 continue
-            if aname in ('__doc__', '__dict__', '__weakref__'):
+            if aname in ('__doc__', '__dict__', '__weakref__', '__module__'):
                 # Ignore documentation which has been printed before and other
                 # uninteresting keys
                 continue
@@ -92,11 +93,12 @@ class SourceDoc(pydoc.Doc):
                 continue
 
             if block:
+                if hasdefs:
+                    lines += '\n'
                 lines += self._indent(block, 1)
-                lines += '\n'
                 hasdefs = True
         if not hasdefs:
-            lines += '    pass\n\n'
+            lines += '    pass\n'
         return lines
 
     def docroutine(self, object, name=None, mod=None, cl=None):

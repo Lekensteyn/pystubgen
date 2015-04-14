@@ -40,3 +40,11 @@ class Sample(str):
 
 def function_without_params():
     'Single quotes'
+
+class Empty(object):
+    pass
+
+class OnlyDoc(object):
+    """
+    One line.
+    """

@@ -9,9 +9,9 @@ try:
 except SyntaxError:
     sample_py3 = None
 
-def check_source(object):
+def check_source(object, **kwargs):
     """Invokes make_source and tries to compile it (checking its syntax)."""
-    source = pystubgen.make_source(object)
+    source = pystubgen.make_source(object, **kwargs)
     obj = compile(source, 'dummy.py', 'exec')
     obj_globals = {}
     exec(obj, obj_globals)
@@ -67,3 +67,11 @@ def test_sample_class_staticmethod():
     source, g = check_source(sample.Sample.staticmeth)
     assert inspect.getdoc(g['staticmeth']) == 'This is a static method.'
     assert 'def staticmeth(arg=42):' in source.splitlines()
+
+def test_empty_class():
+    source, g = check_source(sample.Empty, include_header=False)
+    assert source == 'class Empty(object):\n    pass\n'
+
+def test_doc_only_class():
+    source, g = check_source(sample.OnlyDoc, include_header=False)
+    assert source == 'class OnlyDoc(object):\n    """\n    One line.\n    """\n'
