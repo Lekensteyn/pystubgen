@@ -57,3 +57,13 @@ def test_make_source_on_instance():
     assert 'Sample' in g
     s = g['Sample']
     assert inspect.getdoc(s) == 'For testing purposes.'
+
+def test_sample_class_classmethod():
+    source, g = check_source(sample.Sample.classmeth)
+    assert inspect.getdoc(g['classmeth']) == 'This is a class method.'
+    assert 'def classmeth(cls, arg):' in source.splitlines()
+
+def test_sample_class_staticmethod():
+    source, g = check_source(sample.Sample.staticmeth)
+    assert inspect.getdoc(g['staticmeth']) == 'This is a static method.'
+    assert 'def staticmeth(arg=42):' in source.splitlines()

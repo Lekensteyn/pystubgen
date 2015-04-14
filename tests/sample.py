@@ -30,5 +30,13 @@ class Sample(str):
     @prop.deleter
     def prop(self): pass
 
+    @classmethod
+    def classmeth(cls, arg):
+        """This is a class method."""
+
+    @staticmethod
+    def staticmeth(arg=42):
+        """This is a static method."""
+
 def function_without_params():
     'Single quotes'
