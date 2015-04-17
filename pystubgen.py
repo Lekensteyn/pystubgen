@@ -29,7 +29,7 @@ class SourceDoc(pydoc.Doc):
         if inspect.ismodule(object): return self.docmodule(*args)
         if inspect.isclass(object): return self.docclass(*args)
         if inspect.isroutine(object): return self.docroutine(*args)
-        return super(SourceDoc, self).document(object, name, *args)
+        return pydoc.Doc.document(self, *args)
     document = _document
 
     def docmodule(self, object, name=None, mod=None):
