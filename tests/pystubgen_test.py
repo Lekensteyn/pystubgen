@@ -26,6 +26,8 @@ def test_sample():
     assert inspect.getdoc(s) == 'For testing purposes.'
     assert inspect.getdoc(s.strip) == 'Strip  some\ndocumentation.'
     assert inspect.getdoc(s.prop) == 'Property documentation.'
+    assert s.weirdchars == '"\'\n\\'
+    assert s.rawchars == r'\x'
 
 def test_sample_class_inheritance():
     source, g = check_source(sample.Sample)

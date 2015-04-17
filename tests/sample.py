@@ -20,6 +20,8 @@ class Sample(str):
 
     lamb = lambda x: x**2
     lamb0 = lambda: 2
+    weirdchars = '"\'\n\\'
+    rawchars = r'\x'
 
     @property
     def prop(self): """Property documentation."""

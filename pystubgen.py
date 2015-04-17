@@ -139,9 +139,7 @@ class SourceDoc(pydoc.Doc):
         return lines
 
     def docdata(self, object, name=None, mod=None, cl=None):
-        val = repr(object)
-        if not val[:1] in '"\'':
-            val = '"%s"' % val
+        val = self._repr(object)
         lines = '%s = %s # DATA\n' % (name, val)
         if type(object) != str:
             lines += self._formatdoc(object, level=0)
@@ -152,13 +150,21 @@ class SourceDoc(pydoc.Doc):
         # called as fallback by Doc.document().
         if not name:
             raise RuntimeError('Invalid call to docother')
-        val = repr(object)
-        if not val[:1] in '"\'':
-            val = '"%s"' % val
+        val = self._repr(object)
         lines = '%s = %s # OTHER\n' % (name, val)
         if type(object) != str:
             lines += self._formatdoc(object, level=0)
         return lines
+
+    def _repr(self, obj):
+        # Objects may be displayed as "<class 'Foo'>", therefore
+        # check whether it needs to be stringified.
+        safe = type(obj) in (bool, int, float, complex, str, bytes,
+                bytearray, memoryview) or obj is None
+        # Python 2
+        try: safe = safe or type(obj) == unicode
+        except: pass
+        return repr(obj) if safe else repr(str(obj))
 
 sourcecode = SourceDoc()
 
