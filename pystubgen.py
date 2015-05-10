@@ -160,7 +160,10 @@ class SourceDoc(pydoc.Doc):
         # Objects may be displayed as "<class 'Foo'>", therefore
         # check whether it needs to be stringified.
         safe = type(obj) in (bool, int, float, complex, str, bytes,
-                bytearray, memoryview) or obj is None
+                bytearray) or obj is None
+        # Python 2.7+
+        try: safe = safe or type(obj) == memoryview
+        except: pass
         # Python 2
         try: safe = safe or type(obj) == unicode
         except: pass
