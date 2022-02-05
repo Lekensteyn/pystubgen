@@ -7,9 +7,10 @@ class Sample(str):
     """For testing purposes."""
 
     def strip(self):
-        """
-        Strip  some
-        documentation.
+        """Strip indentation.
+
+            After first
+            line.
         """
 
     def foo(self):

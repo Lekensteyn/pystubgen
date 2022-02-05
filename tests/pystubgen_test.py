@@ -24,7 +24,7 @@ def test_sample():
     assert inspect.cleandoc(g['__doc__']) == \
         "This file contains definitions that should be processed without error."
     assert inspect.getdoc(s) == 'For testing purposes.'
-    assert inspect.getdoc(s.strip) == 'Strip  some\ndocumentation.'
+    assert inspect.getdoc(s.strip) == 'Strip indentation.\n\nAfter first\nline.'
     assert inspect.getdoc(s.prop) == 'Property documentation.'
     assert s.weirdchars == '"\'\n\\'
     assert s.rawchars == r'\x'
@@ -40,7 +40,9 @@ def test_sample_py3():
     s = g['Py3Sample']
     assert inspect.cleandoc(g['__doc__']) == \
         'This file contains sample definitions that work only in Python 3.'
-    assert inspect.getdoc(s) == None
+    # Since Python 3.5, inspect.getdoc inherits docs, so check __doc__ directly.
+    assert s.__doc__ == None
+    assert inspect.getdoc(s.argstest) == inspect.cleandoc(s.argstest.__doc__)
     assert inspect.getdoc(s.argstest) == 'z is unsupported syntax in Python 2.'
 
 @pytest.mark.skipif(sample_py3 is None, reason='not supported before Python 3')

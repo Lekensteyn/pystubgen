@@ -8,6 +8,7 @@
 import pydoc
 import inspect
 import sys
+import types
 
 class SourceDoc(pydoc.Doc):
     def _indent(self, text, level):
@@ -17,9 +18,15 @@ class SourceDoc(pydoc.Doc):
         return ''.join(makeline(line) for line in text.splitlines(True))
 
     def _formatdoc(self, object, level=1):
-        docstring = pydoc.getdoc(object).replace('"""', r'\"\"\"')
-        if docstring:
-            return self._indent('"""\n%s\n"""\n' % docstring, level)
+        try:
+            doc = object.__doc__
+        except AttributeError:
+            return ''
+        if not isinstance(doc, str):
+            return ''
+        doc = inspect.cleandoc(doc).replace('"""', r'\"\"\"')
+        if doc:
+            return self._indent('"""\n%s\n"""\n' % doc, level)
         return ''
 
     def _document(self, object, name=None, *args):
@@ -110,12 +117,21 @@ class SourceDoc(pydoc.Doc):
             realname = name
 
         try:
-            if hasattr(inspect, 'getfullargspec'):
+            if hasattr(inspect, 'signature'):
+                # New in Python 3.3. Make sure to indirect methods to ensure
+                # that the first parameter ("cls", "self") is preserved.
+                if isinstance(object, types.MethodType):
+                    fn = object.__func__
+                else:
+                    fn = object
+                signature = str(inspect.signature(fn))
+            elif hasattr(inspect, 'getfullargspec'):
                 # New in Python 3
                 argspec = inspect.getfullargspec(object)
+                signature = inspect.formatargspec(*argspec)
             else:
                 argspec = inspect.getargspec(object)
-            signature = inspect.formatargspec(*argspec)
+                signature = inspect.formatargspec(*argspec)
         except (ValueError, TypeError):
             signature = '(__unknown_params__)'
 
