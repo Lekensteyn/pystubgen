@@ -51,3 +51,6 @@ class OnlyDoc(object):
     """
     One line.
     """
+
+def function_with_params(a, b=1, *, c, d='x'):
+    pass

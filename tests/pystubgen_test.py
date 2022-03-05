@@ -79,3 +79,11 @@ def test_empty_class():
 def test_doc_only_class():
     source, g = check_source(sample.OnlyDoc, include_header=False)
     assert source == 'class OnlyDoc(object):\n    """\n    One line.\n    """\n'
+
+def test_new_signature():
+    source, g = check_source(object.__new__, include_header=False)
+    assert 'def __new__(type, *args, **kwargs):' == source.splitlines()[0]
+
+def test_function_vararg():
+    source, g = check_source(sample.function_with_params, include_header=False)
+    assert "def function_with_params(a, b=1, *, c, d='x'):" == source.splitlines()[0]

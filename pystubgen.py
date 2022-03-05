@@ -8,7 +8,6 @@
 import pydoc
 import inspect
 import sys
-import types
 
 class SourceDoc(pydoc.Doc):
     def _indent(self, text, level):
@@ -118,15 +117,17 @@ class SourceDoc(pydoc.Doc):
 
         try:
             if hasattr(inspect, 'signature'):
-                # New in Python 3.3. Make sure to indirect methods to ensure
-                # that the first parameter ("cls", "self") is preserved.
-                if isinstance(object, types.MethodType):
-                    fn = object.__func__
+                # New in Python 3.3.
+                sig = inspect.signature(object)
+                # Ensure that the first parameter ("cls", "self") is preserved
+                # for class and the special __new__ methods.
+                argnames = inspect.getfullargspec(object).args
+                if argnames and argnames[0] not in list(sig.parameters.keys())[:1]:
+                    signature = '(' + argnames[0] + ', ' + str(sig)[1:]
                 else:
-                    fn = object
-                signature = str(inspect.signature(fn))
+                    signature = str(sig)
             elif hasattr(inspect, 'getfullargspec'):
-                # New in Python 3
+                # New in Python 3, formatargspec will be removed in Python 3.11.
                 argspec = inspect.getfullargspec(object)
                 signature = inspect.formatargspec(*argspec)
             else:
