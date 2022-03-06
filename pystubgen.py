@@ -41,10 +41,19 @@ class SourceDoc(pydoc.Doc):
     def docmodule(self, object, name=None, mod=None):
         lines = ''
         lines += self._formatdoc(object, level = 0)
-        for key, value in inspect.getmembers(object, inspect.isclass):
+        for key, value in inspect.getmembers(object):
+            if key in ('__builtins__', '__cached__', '__loader__', '__spec__'):
+                # Skip builtins and imports implementation details.
+                continue
+            if inspect.ismodule(value):
+                line = '{} = {} # MODULE\n'.format(key, self._repr(value))
+                # Skip imported modules such as "types" and "traceback".
+                continue
+            else:
+                line = self.document(value, key, mod)
             if lines:
                 lines += '\n'
-            lines += self.docclass(value, key, mod)
+            lines += line
         return lines
 
     def docclass(self, object, name=None, mod=None, *ignored):
@@ -169,11 +178,21 @@ class SourceDoc(pydoc.Doc):
             raise RuntimeError('Invalid call to docother')
         val = self._repr(object)
         lines = '%s = %s # OTHER\n' % (name, val)
-        if type(object) != str:
-            lines += self._formatdoc(object, level=0)
         return lines
 
-    def _repr(self, obj):
+    @classmethod
+    def _repr(cls, obj):
+        """Returns a representation that can safely be evaluated as code."""
+        return repr(cls._safeobj(obj))
+
+    @classmethod
+    def _safeobj(cls, obj):
+        if type(obj) == list:
+            return [cls._safeobj(value) for value in obj]
+        if type(obj) == tuple:
+            return tuple(cls._safeobj(value) for value in obj)
+        if type(obj) == dict:
+            return {cls._safeobj(k): cls._safeobj(v) for k, v in obj.items()}
         # Objects may be displayed as "<class 'Foo'>", therefore
         # check whether it needs to be stringified.
         safe = type(obj) in (bool, int, float, complex, str, bytes,
@@ -184,7 +203,7 @@ class SourceDoc(pydoc.Doc):
         # Python 2
         try: safe = safe or type(obj) == unicode
         except: pass
-        return repr(obj) if safe else repr(str(obj))
+        return obj if safe else str(obj)
 
 sourcecode = SourceDoc()
 

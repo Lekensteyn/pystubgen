@@ -28,6 +28,13 @@ def test_sample():
     assert inspect.getdoc(s.prop) == 'Property documentation.'
     assert s.weirdchars == '"\'\n\\'
     assert s.rawchars == r'\x'
+    assert inspect.getdoc(g['function_without_params']) == 'Single quotes'
+    srclines = [x.replace(' # OTHER', '') for x in source.splitlines() if '# OTHER' in x]
+    assert 'global_var = 42' in srclines
+    # for easier debugging if tests fail.
+    srclines = [x for x in srclines if x.startswith('some_')]
+    assert "some_list = [0, ['x', True], None]" in srclines
+    assert "some_dict = {'foo': 1, 'bar': {}, 1: True}" in srclines
 
 def test_sample_class_inheritance():
     source, g = check_source(sample.Sample)

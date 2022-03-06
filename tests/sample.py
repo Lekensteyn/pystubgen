@@ -54,3 +54,11 @@ class OnlyDoc(object):
 
 def function_with_params(a, b=1, *, c, d='x'):
     pass
+
+# It is not possible to add documentation to variables, so the best we can do is
+# exposing the variable name.
+global_var = 42
+
+some_dict = {'foo': 1, 'bar': {}, 1: True}
+
+some_list = [0, ['x', True], None]
