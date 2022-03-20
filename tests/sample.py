@@ -52,6 +52,21 @@ class OnlyDoc(object):
     One line.
     """
 
+class ClassBase:
+    """Testing inheritance where the order of names is important."""
+
+class ClassA(ClassBase):
+    pass
+
+class ClassY(ClassBase):
+    pass
+
+class ClassX(ClassY):
+    pass
+
+class ClassZ(ClassY):
+    pass
+
 def function_with_params(a, b=1, *, c, d='x'):
     pass
 

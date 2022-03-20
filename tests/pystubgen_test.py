@@ -35,6 +35,11 @@ def test_sample():
     srclines = [x for x in srclines if x.startswith('some_')]
     assert "some_list = [0, ['x', True], None]" in srclines
     assert "some_dict = {'foo': 1, 'bar': {}, 1: True}" in srclines
+    assert 'ClassBase' in g
+    assert 'ClassA' in g
+    assert 'ClassX' in g
+    assert 'ClassY' in g
+    assert 'ClassZ' in g
 
 def test_sample_class_inheritance():
     source, g = check_source(sample.Sample)

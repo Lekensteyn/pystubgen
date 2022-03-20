@@ -36,11 +36,17 @@ class SourceDoc(pydoc.Doc):
         if inspect.isclass(object): return self.docclass(*args)
         if inspect.isroutine(object): return self.docroutine(*args)
         return pydoc.Doc.document(self, *args)
+    # Override pydoc.Doc.document to avoid swallowing errors while trying to
+    # document modules, classes, and routines.
     document = _document
 
     def docmodule(self, object, name=None, mod=None):
         lines = ''
         lines += self._formatdoc(object, level = 0)
+        # Maps names to their documentation.
+        docs = {}
+        # Maps object names to a list of its dependencies.
+        deps_map = {}
         for key, value in inspect.getmembers(object):
             if key in ('__builtins__', '__cached__', '__loader__', '__spec__'):
                 # Skip builtins and imports implementation details.
@@ -51,9 +57,13 @@ class SourceDoc(pydoc.Doc):
                 continue
             else:
                 line = self.document(value, key, mod)
+            docs[key] = line
+            deps_map[key] = self._identify_deps(value)
+        names = self._sort_deps(deps_map)
+        if docs:
             if lines:
                 lines += '\n'
-            lines += line
+            lines += '\n'.join(docs[name] for name in names)
         return lines
 
     def docclass(self, object, name=None, mod=None, *ignored):
@@ -204,6 +214,55 @@ class SourceDoc(pydoc.Doc):
         try: safe = safe or type(obj) == unicode
         except: pass
         return obj if safe else str(obj)
+
+    @staticmethod
+    def _identify_deps(obj):
+        if inspect.isclass(obj):
+            deps = []
+            for c in obj.__bases__:
+                if c.__module__ == obj.__module__:
+                    deps.append(c.__name__)
+                else:
+                    deps.append(c.__module__ + '.' + c.__name__)
+            # Return base classes.
+            return deps
+        return []
+
+    @staticmethod
+    def _sort_deps(deps_map):
+        """
+        Given a mapping of name to a list of its dependencies, return a list of
+        the names in topological order. Non-existing dependencies are ignored.
+        """
+        ordered = []
+        # Prune unknown deps.
+        all_names = set(deps_map.keys())
+        work = {}
+        for name, deps in deps_map.items():
+            work[name] = [dep for dep in deps if dep in all_names]
+        # Implementation of Kahn's algorithm for topological ordering. Populate
+        # queue with nodes without edges and compute the adjacency list.
+        queue = []
+        incomings = {}
+        adj = {name: [] for name in deps_map.keys()}
+        for name, deps in work.items():
+            incomings[name] = len(deps)
+            if not deps:
+                queue.append(name)
+            else:
+                for dep in deps:
+                    adj[dep].append(name)
+        # Add nodes without incoming edges to the output list. Find dependees
+        # without any more incoming edges (dependencies) and queue those.
+        while queue:
+            name = queue.pop(0)
+            ordered.append(name)
+            for dependee in adj[name]:
+                num_edges = incomings[dependee] - 1
+                incomings[dependee] = num_edges
+                if num_edges == 0:
+                    queue.append(dependee)
+        return ordered
 
 sourcecode = SourceDoc()
 
